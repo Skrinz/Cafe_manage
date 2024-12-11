@@ -6,6 +6,7 @@ package coffee_manage;
 
 import coffee_manage.utils.DatabaseConnection;
 import coffee_manage.utils.DateTimeUpdater;
+import coffee_manage.utils.UserSession;
 import javax.swing.table.DefaultTableModel;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -41,8 +42,10 @@ public class EmployeesFrame extends javax.swing.JFrame {
         DefaultTableModel model = (DefaultTableModel) tblEmployee.getModel();
         model.setRowCount(0);
         try (var conn = DatabaseConnection.getConnection()){
-            String sql = "SELECT * FROM users";
+            int userId = UserSession.getUserId();
+            String sql = "SELECT * FROM users WHERE ID != ?";
             PreparedStatement pst = conn.prepareStatement(sql);
+            pst.setInt(1, userId);
             ResultSet rs = pst.executeQuery();
             while(rs.next()){
                 model.addRow(new Object[]{rs.getInt(1),rs.getString(2), rs.getString(3), rs.getString(4)});
@@ -286,6 +289,7 @@ public class EmployeesFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_tblEmployeeMouseClicked
 
     private void btnLogoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLogoutActionPerformed
+        UserSession.clearSession();;
         int currentX = this.getX();
         int currentY = this.getY();
         Login loginFrame = new Login();

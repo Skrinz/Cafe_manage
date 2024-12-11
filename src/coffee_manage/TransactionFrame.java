@@ -6,6 +6,7 @@ package coffee_manage;
 
 import coffee_manage.utils.DatabaseConnection;
 import coffee_manage.utils.DateTimeUpdater;
+import coffee_manage.utils.UserSession;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import javax.swing.table.DefaultTableModel;
@@ -64,6 +65,7 @@ public class TransactionFrame extends javax.swing.JFrame {
         btnEmployees = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblTransactions = new javax.swing.JTable();
+        btnLogout = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -114,6 +116,13 @@ public class TransactionFrame extends javax.swing.JFrame {
         tblTransactions.getTableHeader().setReorderingAllowed(false);
         jScrollPane1.setViewportView(tblTransactions);
 
+        btnLogout.setText("Logout");
+        btnLogout.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnLogoutActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -121,15 +130,18 @@ public class TransactionFrame extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(26, 26, 26)
-                        .addComponent(btnProducts)
-                        .addGap(18, 18, 18)
-                        .addComponent(btnTransactions)
-                        .addGap(18, 18, 18)
-                        .addComponent(btnEmployees))
-                    .addGroup(layout.createSequentialGroup()
                         .addGap(52, 52, 52)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 607, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 607, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(26, 26, 26)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(btnLogout)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(btnProducts)
+                                .addGap(18, 18, 18)
+                                .addComponent(btnTransactions)
+                                .addGap(18, 18, 18)
+                                .addComponent(btnEmployees)))))
                 .addContainerGap(58, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -142,7 +154,9 @@ public class TransactionFrame extends javax.swing.JFrame {
                     .addComponent(btnEmployees))
                 .addGap(30, 30, 30)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 278, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(63, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addComponent(btnLogout)
+                .addContainerGap(18, Short.MAX_VALUE))
         );
 
         pack();
@@ -174,6 +188,16 @@ public class TransactionFrame extends javax.swing.JFrame {
         employeesFrame.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_btnEmployeesActionPerformed
+
+    private void btnLogoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLogoutActionPerformed
+        UserSession.clearSession();;
+        int currentX = this.getX();
+        int currentY = this.getY();
+        Login loginFrame = new Login();
+        loginFrame.setLocation(currentX, currentY);
+        loginFrame.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_btnLogoutActionPerformed
 
     /**
      * @param args the command line arguments
@@ -212,6 +236,7 @@ public class TransactionFrame extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnEmployees;
+    private javax.swing.JButton btnLogout;
     private javax.swing.JButton btnProducts;
     private javax.swing.JButton btnTransactions;
     private javax.swing.JScrollPane jScrollPane1;

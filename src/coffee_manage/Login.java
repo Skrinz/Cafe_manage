@@ -6,7 +6,7 @@ package coffee_manage;
 
 import javax.swing.JOptionPane;
 import coffee_manage.utils.DatabaseConnection;
-import coffee_manage.utils.DateTimeUpdater;
+import coffee_manage.utils.UserSession;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.logging.Level;
@@ -143,73 +143,75 @@ public class Login extends javax.swing.JFrame {
     }//GEN-LAST:event_txtPasswordActionPerformed
 
     private void btnLoginMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnLoginMouseClicked
-          String username = txtName.getText();
-    String password = new String(txtPassword.getPassword());
+        String username = txtName.getText();
+        String password = new String(txtPassword.getPassword());
 
-    // Check for empty fields
-    if (username.isEmpty() || password.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Please enter both username and password.", "Login Failed", JOptionPane.WARNING_MESSAGE);
-        return;
-    }
-
-    try {
-        Class.forName("com.mysql.cj.jdbc.Driver");
-    } catch (ClassNotFoundException ex) {
-        Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
-        JOptionPane.showMessageDialog(this, "Error loading database driver.", "Error", JOptionPane.ERROR_MESSAGE);
-        return;
-    }
-
-    // Database connection and query
-    try (java.sql.Connection conn = DatabaseConnection.getConnection()) {
-        String sql = "SELECT role FROM users WHERE username = ? AND password = ?";
-        PreparedStatement stmt = conn.prepareStatement(sql);
-        stmt.setString(1, username);
-        stmt.setString(2, password);
-
-        ResultSet rs = stmt.executeQuery();
-
-        if (rs.next()) {
-            String role = rs.getString("role");
-            JOptionPane.showMessageDialog(this, "Login successful! Role: " + role);
-
-
-             int currentX = this.getX();
-             int currentY = this.getY();
-    
-            // Hide login frame
-            this.setVisible(false);
-
-            // Navigate to the appropriate dashboard based on role
-            switch (role) {
-                case "admin":
-                    ProductFrame productFrame = new ProductFrame();
-                    productFrame.setLocation(currentX, currentY);
-                    productFrame.setVisible(true);
-                    break;
-                case "employee":
-                    CashierFrame cashierFrame = new CashierFrame();
-                    cashierFrame.setLocation(currentX, currentY);
-                    cashierFrame.setVisible(true);
-                    break;
-                default:
-                    JOptionPane.showMessageDialog(this, "Unknown role!", "Error", JOptionPane.ERROR_MESSAGE);
-                    break;
-            }
-
-            // Clear input fields and reset focus
-            clear();
-
-            // Close the login window
-            dispose();
-        } else {
-            JOptionPane.showMessageDialog(this, "Invalid username or password.", "Login Failed", JOptionPane.ERROR_MESSAGE);
-            clear();
+        // Check for empty fields
+        if (username.isEmpty() || password.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please enter both username and password.", "Login Failed", JOptionPane.WARNING_MESSAGE);
+            return;
         }
-    } catch (Exception ex) {
-        ex.printStackTrace();
-        JOptionPane.showMessageDialog(this, "Error connecting to database.", "Error", JOptionPane.ERROR_MESSAGE);
-    }
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(this, "Error loading database driver.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Database connection and query
+        try (java.sql.Connection conn = DatabaseConnection.getConnection()) {
+            String sql = "SELECT id, role FROM users WHERE username = ? AND password = ?";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setString(1, username);
+            stmt.setString(2, password);
+
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                String role = rs.getString("role");
+                int userId = rs.getInt("id");
+                JOptionPane.showMessageDialog(this, "Login successful! Role: " + role);
+
+                UserSession.setUserId(userId);
+                
+                 int currentX = this.getX();
+                 int currentY = this.getY();
+
+                // Hide login frame
+                this.setVisible(false);
+
+                // Navigate to the appropriate dashboard based on role
+                switch (role) {
+                    case "admin":
+                        ProductFrame productFrame = new ProductFrame();
+                        productFrame.setLocation(currentX, currentY);
+                        productFrame.setVisible(true);
+                        break;
+                    case "employee":
+                        CashierFrame cashierFrame = new CashierFrame();
+                        cashierFrame.setLocation(currentX, currentY);
+                        cashierFrame.setVisible(true);
+                        break;
+                    default:
+                        JOptionPane.showMessageDialog(this, "Unknown role!", "Error", JOptionPane.ERROR_MESSAGE);
+                        break;
+                }
+
+                // Clear input fields and reset focus
+                clear();
+
+                // Close the login window
+                dispose();
+            } else {
+                JOptionPane.showMessageDialog(this, "Invalid username or password.", "Login Failed", JOptionPane.ERROR_MESSAGE);
+                clear();
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error connecting to database.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_btnLoginMouseClicked
 
     /**

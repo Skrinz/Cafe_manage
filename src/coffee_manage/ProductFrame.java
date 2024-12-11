@@ -6,6 +6,7 @@ package coffee_manage;
 
 import coffee_manage.utils.DatabaseConnection;
 import coffee_manage.utils.DateTimeUpdater;
+import coffee_manage.utils.UserSession;
 import static java.lang.constant.ConstantDescs.NULL;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -154,6 +155,11 @@ public class ProductFrame extends javax.swing.JFrame {
         }
 
         btnLogout.setText("Logout");
+        btnLogout.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnLogoutActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -279,6 +285,16 @@ public class ProductFrame extends javax.swing.JFrame {
         updateFrame.setVisible(true);
         this.dispose(); 
     }//GEN-LAST:event_tblProductMouseClicked
+
+    private void btnLogoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLogoutActionPerformed
+        UserSession.clearSession();;
+        int currentX = this.getX();
+        int currentY = this.getY();
+        Login loginFrame = new Login();
+        loginFrame.setLocation(currentX, currentY);
+        loginFrame.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_btnLogoutActionPerformed
 
     /**
      * @param args the command line arguments

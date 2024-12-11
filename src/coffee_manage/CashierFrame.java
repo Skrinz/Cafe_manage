@@ -6,6 +6,7 @@ package coffee_manage;
 
 import coffee_manage.utils.DatabaseConnection;
 import coffee_manage.utils.DateTimeUpdater;
+import coffee_manage.utils.UserSession;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import javax.swing.JOptionPane;
@@ -495,6 +496,7 @@ private void updateTotalPrice() {
     }//GEN-LAST:event_btnTransactionMouseClicked
 
     private void btnLogoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLogoutActionPerformed
+        UserSession.clearSession();;
         int currentX = this.getX();
         int currentY = this.getY();
         Login loginFrame = new Login();
