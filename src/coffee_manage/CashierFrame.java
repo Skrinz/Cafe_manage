@@ -405,80 +405,93 @@ private void updateTotalPrice() {
     }//GEN-LAST:event_btnAddItemMouseClicked
 
     private void btnTransactionMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnTransactionMouseClicked
-         try {
-            // Check if there are items in the transaction table
-            DefaultTableModel model = (DefaultTableModel) tblItems.getModel();
-            if (model.getRowCount() == 0) {
-                JOptionPane.showMessageDialog(this, "No items to complete the transaction!", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            // Connect to the database
-            java.sql.Connection conn = DatabaseConnection.getConnection();
-            conn.setAutoCommit(false); // Enable transaction management
-
-            // Save the transaction in the database
-            String transactionSql = "INSERT INTO transactions (total_price, transaction_date) VALUES (?, NOW())";
-            PreparedStatement transactionStmt = conn.prepareStatement(transactionSql, PreparedStatement.RETURN_GENERATED_KEYS);
-            double totalPrice = Double.parseDouble(lblTotalPrice.getText());
-            transactionStmt.setDouble(1, totalPrice);
-            transactionStmt.executeUpdate();
-
-            // Get the transaction ID for inserting transaction items
-            ResultSet rs = transactionStmt.getGeneratedKeys();
-            if (!rs.next()) {
-                throw new Exception("Failed to retrieve transaction ID.");
-            }
-            int transactionId = rs.getInt(1);
-
-            // Insert each item into the transaction_items table and update the product inventory
-            String itemSql = "INSERT INTO transaction_items (transaction_id, product_id, quantity, total_price) VALUES (?, ?, ?, ?)";
-            String updateProductSql = "UPDATE products SET product_quantity = product_quantity - ? WHERE id = ?";
-            PreparedStatement itemStmt = conn.prepareStatement(itemSql);
-            PreparedStatement updateProductStmt = conn.prepareStatement(updateProductSql);
-
-            for (int i = 0; i < model.getRowCount(); i++) {
-                int productId = (int) model.getValueAt(i, 0); // Product ID
-                int quantity = (int) model.getValueAt(i, 3); // Quantity
-                double rowTotalPrice = (double) model.getValueAt(i, 4); // Total Price
-
-                // Insert item into transaction_items
-                itemStmt.setInt(1, transactionId);
-                itemStmt.setInt(2, productId);
-                itemStmt.setInt(3, quantity);
-                itemStmt.setDouble(4, rowTotalPrice);
-                itemStmt.addBatch();
-
-                // Update product inventory
-                updateProductStmt.setInt(1, quantity);
-                updateProductStmt.setInt(2, productId);
-                updateProductStmt.addBatch();
-            }
-
-            itemStmt.executeBatch();
-            updateProductStmt.executeBatch();
-            conn.commit(); // Commit the transaction
-
-            // Clear the table and reset the total price label
-            model.setRowCount(0);
-            lblTotalPrice.setText("0.00");
-            
-
-            JOptionPane.showMessageDialog(this, "Transaction completed successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-
-            // Refresh product table to reflect inventory changes
-            refreshTable();
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Transaction Error", JOptionPane.ERROR_MESSAGE);
-
-            try {
-                DatabaseConnection.getConnection().rollback(); // Roll back the transaction on error
-            } catch (Exception rollbackEx) {
-                rollbackEx.printStackTrace();
-            }
+          try {
+        // Check if there are items in the transaction table
+        DefaultTableModel model = (DefaultTableModel) tblItems.getModel();
+        if (model.getRowCount() == 0) {
+            JOptionPane.showMessageDialog(this, "No items to complete the transaction!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
+
+        // Connect to the database
+        java.sql.Connection conn = DatabaseConnection.getConnection();
+        conn.setAutoCommit(false); // Enable transaction management
+
+        // Save the transaction in the database
+        String transactionSql = "INSERT INTO transactions (total_price, transaction_date) VALUES (?, NOW())";
+        PreparedStatement transactionStmt = conn.prepareStatement(transactionSql, PreparedStatement.RETURN_GENERATED_KEYS);
+        double totalPrice = Double.parseDouble(lblTotalPrice.getText());
+        transactionStmt.setDouble(1, totalPrice);
+        transactionStmt.executeUpdate();
+
+        // Get the transaction ID for inserting transaction items
+        ResultSet rs = transactionStmt.getGeneratedKeys();
+        if (!rs.next()) {
+            throw new Exception("Failed to retrieve transaction ID.");
+        }
+        int transactionId = rs.getInt(1);
+
+        // Insert each item into the transaction_items table and update the product inventory
+        String itemSql = "INSERT INTO transaction_items (transaction_id, product_id, quantity, total_price) VALUES (?, ?, ?, ?)";
+        String updateProductSql = "UPDATE products SET product_quantity = product_quantity - ? WHERE id = ?";
+        String checkQuantitySql = "SELECT product_quantity FROM products WHERE id = ?";
+        PreparedStatement itemStmt = conn.prepareStatement(itemSql);
+        PreparedStatement updateProductStmt = conn.prepareStatement(updateProductSql);
+        PreparedStatement checkQuantityStmt = conn.prepareStatement(checkQuantitySql);
+
+        for (int i = 0; i < model.getRowCount(); i++) {
+            int productId = (int) model.getValueAt(i, 0); // Product ID
+            int quantity = (int) model.getValueAt(i, 3); // Quantity
+            double rowTotalPrice = (double) model.getValueAt(i, 4); // Total Price
+
+            // Check if the quantity is available
+            checkQuantityStmt.setInt(1, productId);
+            ResultSet quantityRs = checkQuantityStmt.executeQuery();
+            if (quantityRs.next()) {
+                int availableQuantity = quantityRs.getInt("product_quantity");
+                if (quantity > availableQuantity) {
+                    throw new Exception("Insufficient stock for product ID: " + productId + ". Available: " + availableQuantity);
+                }
+            } else {
+                throw new Exception("Product ID not found: " + productId);
+            }
+
+            // Insert item into transaction_items
+            itemStmt.setInt(1, transactionId);
+            itemStmt.setInt(2, productId);
+            itemStmt.setInt(3, quantity);
+            itemStmt.setDouble(4, rowTotalPrice);
+            itemStmt.addBatch();
+
+            // Update product inventory
+            updateProductStmt.setInt(1, quantity);
+            updateProductStmt.setInt(2, productId);
+            updateProductStmt.addBatch();
+        }
+
+        itemStmt.executeBatch();
+        updateProductStmt.executeBatch();
+        conn.commit(); // Commit the transaction
+
+        // Clear the table and reset the total price label
+        model.setRowCount(0);
+        lblTotalPrice.setText("0.00");
+
+        JOptionPane.showMessageDialog(this, "Transaction completed successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+
+        // Refresh product table to reflect inventory changes
+        refreshTable();
+
+    } catch (Exception ex) {
+        ex.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Transaction Error", JOptionPane.ERROR_MESSAGE);
+
+        try {
+            DatabaseConnection.getConnection().rollback(); // Roll back the transaction on error
+        } catch (Exception rollbackEx) {
+            rollbackEx.printStackTrace();
+        }
+    }
     }//GEN-LAST:event_btnTransactionMouseClicked
 
     private void btnLogoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLogoutActionPerformed
