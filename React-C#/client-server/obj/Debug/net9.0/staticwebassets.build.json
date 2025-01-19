@@ -1,0 +1,12 @@
+{
+  "Version": 1,
+  "Hash": "5Zk75PzwJV4An70rlXIGZBTy/0cQHp/UBbi8/UV4hos=",
+  "Source": "client-server",
+  "BasePath": "_content/client-server",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": [],
+  "Endpoints": []
+}
