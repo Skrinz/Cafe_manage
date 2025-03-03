@@ -33,7 +33,7 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <Stack>
+      <Stack initialRouteName="(tabs)/Login">
         <Stack.Screen name="(tabs)/Login" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)/Register" options={{ headerShown: false }} />
         <Stack.Screen name="+not-found" />
