@@ -6,6 +6,6 @@ Download react native:
 Run the react native app
 
 - download expo in play store
-- to run the app use npx expo start --tunnel command
+- to run the app use <strong>npx expo start</strong> command
 - wait for qr code to show
 - in the expo go click scan qr code **both devices should connect to the same network** and scan the qr code in laptop/pc
