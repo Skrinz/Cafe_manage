@@ -98,14 +98,14 @@ const RegisterScreen = () => {
                 style={styles.signInButton}
                 onPress={() => router.push("/Login")}
               >
-                <Text style={styles.signInText}>Sign in</Text>
+                <Text style={styles.signInText}>Sign up</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
                 style={styles.signUpButton}
                 onPress={() => router.push("/Register")}
               >
-                <Text style={styles.signUpText}>Sign up</Text>
+                <Text style={styles.signUpText}>Sign in</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -171,7 +171,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   signInButton: {
-    backgroundColor: "#b5b04d",
+    backgroundColor: "#b8c1cc",
     borderRadius: 5,
     height: 50,
     justifyContent: "center",
@@ -186,7 +186,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   signUpButton: {
-    backgroundColor: "#b8c1cc",
+    backgroundColor: "#b5b04d",
     borderRadius: 5,
     height: 50,
     marginBottom: 50,
